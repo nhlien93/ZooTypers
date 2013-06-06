@@ -14,6 +14,7 @@ import android.media.MediaPlayer;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.CountDownTimer;
+import android.text.Html;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -106,7 +107,7 @@ public class MultiPlayer extends Player {
 		// Get animal & background selected by user
 
 		View inflatedView = 
-				getLayoutInflater().inflate(R.layout.activity_pregame_selection_multi, null);
+		getLayoutInflater().inflate(R.layout.activity_pregame_selection_multi, null);
 
 		// Get animal & background selected by user
 		int anmID = getIntent().getIntExtra("anm", 0);
@@ -116,13 +117,13 @@ public class MultiPlayer extends Player {
 
 		// Initialize the database according to whether it's a test or not.
 		useTestDB = getIntent().getIntExtra("Testing", 0);
-		Log.e("Extra", "INTENT " + useTestDB);
+		Log.i("Extra", "INTENT " + useTestDB);
 		if (useTestDB == 1) { //The Testing Database on Parse
 			Parse.initialize(this, "E8hfMLlgnEWvPw1auMOvGVsrTp1C6eSoqW1s6roq",
-					"hzPRfP284H5GuRzIFDhVxX6iR9sgTwg4tJU08Bez"); 
+			"hzPRfP284H5GuRzIFDhVxX6iR9sgTwg4tJU08Bez"); 
 		} else { //The Real App Database on Parse
 			Parse.initialize(this, "Iy4JZxlewoSxswYgOEa6vhOSRgJkGIfDJ8wj8FtM",
-					"SVlq5dqYQ4FemgUfA7zdQvdIHOmKBkc5bXoI7y0C"); 
+			"SVlq5dqYQ4FemgUfA7zdQvdIHOmKBkc5bXoI7y0C"); 
 		}
 
 		// Get the user name
@@ -140,9 +141,10 @@ public class MultiPlayer extends Player {
             try {
                 FileInputStream is = openFileInput("bgm.txt");
                 playMusic = 1;
+                Log.i("Multiplayer", "play background music");
             } catch (FileNotFoundException e){
-                //Yes for vibration case
-                //Do nothing
+            	e.fillInStackTrace();
+            	Log.i("Multiplayer", "no background music");
             } 
             readBGM = false;
         }
@@ -151,7 +153,7 @@ public class MultiPlayer extends Player {
         if(playMusic == 1){
             mediaPlayer = MediaPlayer.create(this, R.raw.sound2);
             mediaPlayer.setLooping(true);
-            mediaPlayer.setVolume(100,100);
+            mediaPlayer.setVolume(100, 100);
             mediaPlayer.start();
         }
 	}
@@ -273,18 +275,14 @@ public class MultiPlayer extends Player {
 			e.fillInStackTrace();
 			error(States.error.CONNECTION);
 			return;
-		} //finally {
-//			if (playMusic == 1) {
-//				mediaPlayer.stop();
-//			}
-//		}
+		} 
 
 		// See if opponent completed the game
 		try {
 			if (!model.isOpponentFinished()) {
 				// Opponent did disconnect; switch to go to appropriate screen
 				Log.w("Multiplayer", "timed out waiting for opponent to finish");
-				Intent dintent = new Intent(this, PostGameScreenDisconnect.class);			
+				Intent dintent = new Intent(this, PostGameScreenDisconnect.class);
 
 				// Pass score, background & username to post game screen
 				int myScore = model.getScore();
@@ -296,6 +294,7 @@ public class MultiPlayer extends Player {
 				try {
 					model.deleteUser();
 				} catch (InternetConnectionException e) {
+					e.fillInStackTrace();
 					error(States.error.CONNECTION);
 					return;
 				}
@@ -304,20 +303,18 @@ public class MultiPlayer extends Player {
 					mediaPlayer.stop();
 				}
 				// Go to the disconnect post game screen
-				startActivity(dintent);  	
+				startActivity(dintent);
 				return;
 			}
 		} catch (InternetConnectionException e) {
+			e.fillInStackTrace();
 			error(States.error.CONNECTION);
 			return;
 		} catch (InternalErrorException e) {
+			e.fillInStackTrace();
 			error(States.error.INTERNAL);
 			return;
-		} //finally {
-//			if (playMusic == 1) {
-//				mediaPlayer.stop();
-//			}
-//		}
+		} 
 
 		Intent intent = new Intent(this, PostGameScreenMulti.class);
 
@@ -342,14 +339,11 @@ public class MultiPlayer extends Player {
 		try {
 			model.deleteUser();
 		} catch (InternetConnectionException e) {
+			e.fillInStackTrace();
 			error(States.error.CONNECTION);
 			return;
-		} //finally {
-//			if (playMusic == 1) {
-//				mediaPlayer.stop();
-//			}
-//		}
-
+		} 
+		
 		if (playMusic == 1) {
 			mediaPlayer.stop();
 		}
@@ -407,8 +401,8 @@ public class MultiPlayer extends Player {
 		}
 		@Override
 		protected void onPreExecute() {
-			progressDialog = ProgressDialog.show(MultiPlayer.this,"Finding a Game...",  
-					"Searching for opponent, please wait...", false, false);
+			progressDialog = ProgressDialog.show(MultiPlayer.this, getString(R.string.find_game_title),  
+			    getString(R.string.find_game_msg), false, false);
 		}
 
 		@Override

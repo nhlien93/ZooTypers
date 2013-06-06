@@ -20,52 +20,52 @@ import com.example.zootypers.util.InternetConnectionException;
  */
 public class PostGameScreenMulti extends PostGameScreen {
 
-  String username;
+	String username;
 
-  @SuppressLint("NewApi")
-  @Override
-  protected void onCreate(Bundle savedInstanceState) {
-    super.onCreate(savedInstanceState);
+	@SuppressLint("NewApi")
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
 
-    // Get & display background
-    setContentView(R.layout.activity_pregame_selection_multi);
-    Drawable background = ((ImageButton) 
-        findViewById(getIntent().getIntExtra("bg", 0))).getDrawable();
+		// Get & display background
+		setContentView(R.layout.activity_pregame_selection_multi);
+		Drawable background = ((ImageButton) 
+		findViewById(getIntent().getIntExtra("bg", 0))).getDrawable();
 
-    setContentView(R.layout.activity_post_game_screen_multi);
-    findViewById(R.id.postgame_layout).setBackground(background);
+		setContentView(R.layout.activity_post_game_screen_multi);
+		findViewById(R.id.postgame_layout).setBackground(background);
 
-    // Get and display the player's score
-    score = getIntent().getIntExtra("score", 0);
-    TextView finalScore = (TextView) findViewById(R.id.final_score);
-    finalScore.setText(score.toString());
-    
-    opponentDisplay();
+		// Get and display the player's score
+		score = getIntent().getIntExtra("score", 0);
+		TextView finalScore = (TextView) findViewById(R.id.final_score);
+		finalScore.setText(score.toString());
 
-    // Get and store the username
-    username = getIntent().getStringExtra("username");
-  }
-  
-  /**
-   * Display opponent's score & result of the game.
-   */
-  protected void opponentDisplay() {
-    // Get and display the opponent's score
-    Integer oppScore = getIntent().getIntExtra("oppScore", 0);
-    TextView oppFinalScore = (TextView) findViewById(R.id.opp_final_score);
-    oppFinalScore.setText(oppScore.toString());
+		opponentDisplay();
 
-    // Determine & display result of the game
-    TextView resultMessage = (TextView) findViewById(R.id.game_result);
-    int result = getIntent().getIntExtra("result", 0);
-    if (result == 1) {
-      resultMessage.setText("You Won!");
-    } else if (result == 0) {
-      resultMessage.setText("You Tied!");
-    } else {
-      resultMessage.setText("You Lost.");
-    }    
-  }
+		// Get and store the username
+		username = getIntent().getStringExtra("username");
+	}
+
+	/**
+	 * Display opponent's score & result of the game.
+	 */
+	protected void opponentDisplay() {
+		// Get and display the opponent's score
+		Integer oppScore = getIntent().getIntExtra("oppScore", 0);
+		TextView oppFinalScore = (TextView) findViewById(R.id.opp_final_score);
+		oppFinalScore.setText(oppScore.toString());
+
+		// Determine & display result of the game
+		TextView resultMessage = (TextView) findViewById(R.id.game_result);
+		int result = getIntent().getIntExtra("result", 0);
+		if (result == 1) {
+			resultMessage.setText(R.string.you_won);
+		} else if (result == 0) {
+			resultMessage.setText(R.string.you_tied);
+		} else {
+			resultMessage.setText(R.string.you_lost);
+		}    
+	}
 
 	@Override
 	public final void saveScore(final View view) {
@@ -74,6 +74,7 @@ public class PostGameScreenMulti extends PostGameScreen {
 			ml = new MultiLeaderBoardModel();
 			ml.setPlayer(username);
 		} catch (InternetConnectionException e) {
+			e.fillInStackTrace();
 			Log.i("Leaderboard", "triggering internet connection error screen");
 			Intent intent = new Intent(this, ErrorScreen.class);
 			intent.putExtra("username", username);
@@ -81,29 +82,27 @@ public class PostGameScreenMulti extends PostGameScreen {
 			startActivity(intent);
 			return;
 		}
-    	ml.addEntry(score);
-		final String title = "Saved Score";
-		final String message = "Your score has been successfully saved!";
-		buildAlertDialog(title, message);
+		ml.addEntry(score);
+		buildAlertDialog(R.string.saved_title, R.string.saved_msg);
 	}
 
-  @Override
-  public final void goToPreGameSelection(final View view) {
-    Intent intent = new Intent(this, PreGameSelectionMulti.class);
-    intent.putExtra("username", username);
-    startActivity(intent);
-    finish();
-  }
+	@Override
+	public final void goToPreGameSelection(final View view) {
+		Intent intent = new Intent(this, PreGameSelectionMulti.class);
+		intent.putExtra("username", username);
+		startActivity(intent);
+		finish();
+	}
 
-    
-    // TODO remove repetition from title page / options
+
+	// TODO remove repetition from title page / options
 	/**
 	 * builds an AlertDialog popup with the given title and message
 	 * @param title String representing title of the AlertDialog popup
 	 * @param message String representing the message of the AlertDialog
 	 * popup
 	 */
-	private void buildAlertDialog(String title, String message) {
+	private void buildAlertDialog(final int title, final int message) {
 		AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
 
 		// set title
@@ -113,7 +112,7 @@ public class PostGameScreenMulti extends PostGameScreen {
 		alertDialogBuilder
 		.setMessage(message)
 		.setCancelable(false)
-		.setPositiveButton("Close", new DialogInterface.OnClickListener() {
+		.setPositiveButton(R.string.close_alert, new DialogInterface.OnClickListener() {
 			public void onClick(DialogInterface dialog, int id) {
 				// if this button is clicked, close the dialog box
 				dialog.cancel();
